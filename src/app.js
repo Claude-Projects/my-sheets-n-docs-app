@@ -77,7 +77,6 @@ export async function signIn() {
     await auth.signIn();
     await startGoogle();
     if (pendingPath) { const p = pendingPath; pendingPath = null; navigate(p, { replace: true }); }
-    else if (currentPath().startsWith('/open/') === false) navigate('/', { replace: true });
   } catch (e) {
     session.set({ status: 'signed-out', error: e.message });
   }

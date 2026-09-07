@@ -255,7 +255,9 @@ export async function render(root, { params, query, setTitle, navigate }) {
     const dev = h('input', { type: 'text', value: plan.dev_charges ? String(plan.dev_charges) : '' });
     const notes = h('textarea', { rows: 3 }, plan.notes || '');
     let color = plan.color || PLAN_COLORS[0];
-    const swatches = h('div', { class: 'inline' }, PLAN_COLORS.map((c) => h('button', { class: 'btn icon', style: { background: c, borderColor: c === color ? '#000' : c, width: '28px', height: '28px' }, onClick: () => { color = c; swatches.querySelectorAll('button').forEach((b) => { b.style.borderColor = b.style.background === c ? '#000' : b.style.background; }); } })));
+    const swatches = h('div', { class: 'inline' });
+    const drawSwatches = () => replace(swatches, PLAN_COLORS.map((c) => h('button', { class: 'btn icon', title: c, style: { background: c, borderColor: c === color ? 'var(--fg)' : c, borderWidth: c === color ? '3px' : '1px', width: '28px', height: '28px' }, onClick: () => { color = c; drawSwatches(); } })));
+    drawSwatches();
     const m = openModal({ title: 'Plan details', body: h('div', { class: 'form-grid' }, h('div', { class: 'field span-2' }, h('label', null, 'Plan name'), title), field('Asset', asset), field('Scheme', scheme), field('Total price', total), field('Development charges', dev), h('div', { class: 'field span-2' }, h('label', null, 'Colour'), swatches), h('div', { class: 'field span-2' }, h('label', null, 'Notes'), notes)), footer: [h('button', { class: 'btn', onClick: () => m.close() }, 'Cancel'), h('button', { class: 'btn primary', onClick: async () => {
       try {
         await updatePlanMeta(workbookId, plan.id, { title: title.value.trim() || plan.title, asset: asset.value.trim(), scheme: scheme.value.trim(), total_price: parseAmount(total.value), dev_charges: parseAmount(dev.value), notes: notes.value.trim(), color });
