@@ -1,0 +1,14 @@
+{
+  "name": "LedgerDrive",
+  "install": "for f in $(find src -name '*.js') config.js; do node --check \"$f\"; done",
+  "terminals": [
+    {
+      "name": "web",
+      "command": "python3 -m http.server 8080",
+      "description": "Serves the LedgerDrive static app at http://localhost:8080. Open it and click 'Try the demo (no account needed)' to use the app without any Google credentials."
+    }
+  ],
+  "ports": [
+    { "name": "web", "port": 8080 }
+  ]
+}
