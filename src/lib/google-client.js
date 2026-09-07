@@ -216,7 +216,8 @@ export class GoogleClient {
   }
 
   appendValues(id, sheetTitle, values) {
-    const params = new URLSearchParams({ valueInputOption: 'RAW', insertDataOption: 'INSERT_ROWS' });
+    // OVERWRITE still grows the grid when needed but does not leave empty rows behind.
+    const params = new URLSearchParams({ valueInputOption: 'RAW', insertDataOption: 'OVERWRITE' });
     return request(`${SHEETS}/spreadsheets/${encodeURIComponent(id)}/values/${encodeURIComponent(a1(sheetTitle, 'A1'))}:append?${params}`, { method: 'POST', body: { values } });
   }
 

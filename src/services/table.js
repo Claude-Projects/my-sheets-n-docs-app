@@ -124,7 +124,8 @@ export class Table {
 
   async replaceAll(records) {
     await client().clearValues(this.spreadsheetId, this.sheetTitle, `A2:${this.lastCol}`);
-    if (records.length) await client().setValues(this.spreadsheetId, this.sheetTitle, `A2:${this.lastCol}${records.length + 1}`, records.map((r) => this.toValues(r)));
+    // append (not update) so the grid grows automatically when there are more rows than the sheet has.
+    if (records.length) await client().appendValues(this.spreadsheetId, this.sheetTitle, records.map((r) => this.toValues(r)));
     this.rows.splice(0, this.rows.length, ...records.map((r, i) => ({ ...r, _row: i + 2 })));
   }
 

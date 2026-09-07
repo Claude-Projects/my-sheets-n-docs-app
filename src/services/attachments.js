@@ -9,7 +9,9 @@ export async function uploadAttachment({ blob, name, folder, meta = {} }) {
   const ext = blob.type === 'image/png' ? '.png' : blob.type === 'image/jpeg' ? '.jpg' : blob.type === 'image/webp' ? '.webp' : blob.type === 'application/pdf' ? '.pdf' : '';
   const base = safeFileName(name || `attachment-${Date.now()}`);
   const fileName = ext && !base.toLowerCase().endsWith(ext) ? `${base}${ext}` : base;
-  return client().uploadFile({ name: fileName, blob, parentId: folder.id, appProperties: tag(KIND.attachment, meta) });
+  // appProperties are limited to ~124 bytes per key+value.
+  const safeMeta = Object.fromEntries(Object.entries(meta).map(([k, v]) => [k, String(v ?? '').slice(0, 100)]));
+  return client().uploadFile({ name: fileName, blob, parentId: folder.id, appProperties: tag(KIND.attachment, safeMeta) });
 }
 
 export async function attachmentUrl(fileId) {
