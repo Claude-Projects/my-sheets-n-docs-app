@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' https://accounts.google.com/gsi/client https://apis.google.com;
+    style-src 'self' 'unsafe-inline' https://accounts.google.com;
+    connect-src 'self' https://www.googleapis.com https://sheets.googleapis.com https://docs.googleapis.com https://slides.googleapis.com https://oauth2.googleapis.com https://accounts.google.com;
+    frame-src https://accounts.google.com https://docs.google.com https://content.googleapis.com;
+    img-src 'self' data: blob: https://*.googleusercontent.com https://*.google.com;
+    font-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'none';
+  " />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Manage installment plans, expenses and todos with everything stored in your own Google Drive as Sheets, Docs and Slides." />
+  <title>LedgerDrive — Sheets, Docs &amp; Slides powered by your Google Drive</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles/app.css" />
+</head>
+<body>
+  <noscript>
+    <div class="noscript">LedgerDrive needs JavaScript. Everything runs in your browser and talks directly to Google's APIs.</div>
+  </noscript>
+
+  <div id="app" aria-live="polite">
+    <div class="boot">
+      <div class="boot-logo" aria-hidden="true"></div>
+      <p>Loading LedgerDrive…</p>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="assertive"></div>
+  <div id="modals"></div>
+
+  <script src="config.js"></script>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
