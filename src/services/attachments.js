@@ -1,13 +1,11 @@
 // Screenshots / receipts stored as regular files in Drive under Attachments/<workbook>/.
 
 import { client, tag, KIND } from './client.js';
-import { ensureSubfolder } from './workspace.js';
 import { safeFileName } from '../lib/format.js';
 
 const urlCache = new Map();
 
-export async function uploadAttachment({ blob, name, folderKey, folderName, meta = {} }) {
-  const folder = await ensureSubfolder('attachments', folderName, folderKey);
+export async function uploadAttachment({ blob, name, folder, meta = {} }) {
   const ext = blob.type === 'image/png' ? '.png' : blob.type === 'image/jpeg' ? '.jpg' : blob.type === 'image/webp' ? '.webp' : blob.type === 'application/pdf' ? '.pdf' : '';
   const base = safeFileName(name || `attachment-${Date.now()}`);
   const fileName = ext && !base.toLowerCase().endsWith(ext) ? `${base}${ext}` : base;

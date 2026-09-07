@@ -8,7 +8,7 @@ import { parseAttachments, serializeAttachments } from '../services/plans.js';
  * onChange(newEncodedValue) is called after every successful upload/removal.
  * Supports click-to-browse, drag & drop and Ctrl/Cmd+V paste of screenshots.
  */
-export function attachmentsPanel({ value, onChange, folderKey, folderName, meta = {} }) {
+export function attachmentsPanel({ value, onChange, getFolder, meta = {} }) {
   let list = parseAttachments(value);
   const thumbs = h('div', { class: 'thumbs' });
   const fileInput = h('input', { type: 'file', accept: 'image/*,application/pdf', multiple: true, hidden: true, onChange: () => addFiles([...fileInput.files]) });
@@ -34,7 +34,8 @@ export function attachmentsPanel({ value, onChange, folderKey, folderName, meta 
       try {
         const blob = await normalizeImage(f);
         const name = f.name && f.name !== 'image.png' ? f.name : `screenshot-${new Date().toISOString().replace(/[:.]/g, '-')}.${blob.type === 'image/jpeg' ? 'jpg' : 'png'}`;
-        const file = await uploadAttachment({ blob, name, folderKey, folderName, meta });
+        const folder = await getFolder();
+        const file = await uploadAttachment({ blob, name, folder, meta });
         list = [...list, { id: file.id, name: file.name }];
         await onChange(serializeAttachments(list));
         toast('Attachment saved to Google Drive', 'success');

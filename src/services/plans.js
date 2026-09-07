@@ -70,15 +70,33 @@ export async function archiveWorkbook(id) {
 }
 
 export async function unarchiveWorkbook(id) {
-  return client().updateFile(id, { appProperties: { [PROPS.archived]: '' } }, { addParents: folderId('plans'), removeParents: folderId('archive') });
+  return client().updateFile(id, { appProperties: { [PROPS.archived]: null } }, { addParents: folderId('plans'), removeParents: folderId('archive') });
 }
 
 export async function trashWorkbook(id) {
   return client().trashFile(id);
 }
 
+/**
+ * Attachments folder for a workbook. The folder id is remembered on the
+ * workbook itself so people the workbook is shared with upload into the same
+ * folder (they receive the same Drive permission on it). Falls back to a
+ * private folder if that folder is not reachable.
+ */
 export async function attachmentsFolderFor(workbook) {
-  return ensureSubfolder('attachments', workbook.name, `att:${workbook.id}`);
+  const c = client();
+  const remembered = workbook.appProperties?.[PROPS.attFolder];
+  if (remembered) {
+    try {
+      const f = await c.getFile(remembered);
+      if (!f.trashed) return f;
+    } catch { /* fall through */ }
+  }
+  const folder = await ensureSubfolder('attachments', workbook.name, `att:${workbook.id}`);
+  if (workbook.ownedByMe !== false && folder.id !== remembered) {
+    try { await c.updateFile(workbook.id, { appProperties: { [PROPS.attFolder]: folder.id } }); workbook.appProperties = { ...workbook.appProperties, [PROPS.attFolder]: folder.id }; } catch { /* best effort */ }
+  }
+  return folder;
 }
 
 // ---------- Plans (tabs) ----------
@@ -106,7 +124,7 @@ export async function createPlan(workbookId, planMeta, rows) {
   let n = 2;
   while (titles.has(sheetTitle) || sheetTitle === META_SHEET || sheetTitle === SUMMARY_SHEET) sheetTitle = `${sanitizeSheetTitle(planMeta.title).slice(0, 80)} (${n++})`;
 
-  const replies = await c.sheetsBatchUpdate(workbookId, [{ addSheet: { properties: { title: sheetTitle, gridProperties: { rowCount: Math.max(rows.length + 20, 100), columnCount: ROW_COLUMNS.length } } } }]);
+  const replies = await c.sheetsBatchUpdate(workbookId, [{ addSheet: { properties: { title: sheetTitle, gridProperties: { rowCount: Math.max(rows.length + 20, 100), columnCount: 26 } } } }]);
   const sheetId = replies[0].addSheet.properties.sheetId;
   const table = new Table(workbookId, sheetTitle, ROW_COLUMNS, sheetId);
   await c.setValues(workbookId, sheetTitle, `A1:${table.lastCol}1`, [table.headerRow()]);

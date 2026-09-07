@@ -72,6 +72,7 @@ export const auth = {
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: config.googleClientId,
       scope: SCOPES.join(' '),
+      include_granted_scopes: true,
       callback: () => {},
       error_callback: () => {},
     });
@@ -100,18 +101,16 @@ export const auth = {
         resolve(token);
       };
       client.error_callback = (err) => reject(new Error(err?.message || err?.type || 'Sign-in was cancelled.'));
-      client.requestAccessToken({ prompt, hint, include_granted_scopes: true });
+      const overrides = { prompt };
+      if (hint) overrides.login_hint = hint;
+      client.requestAccessToken(overrides);
     });
   },
 
   async signIn() {
-    // First try silently (works when the user previously granted access and
-    // is signed in to Google); fall back to the consent screen.
-    try {
-      return await this.requestToken({ prompt: '' });
-    } catch {
-      return this.requestToken({ prompt: 'consent' });
-    }
+    // Default prompt: Google shows the account chooser / consent screen only
+    // when needed, and grants silently for returning users.
+    return this.requestToken({ prompt: '' });
   },
 
   async fetchUserInfo() {

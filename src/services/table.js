@@ -106,7 +106,8 @@ export class Table {
       data.push({ sheetTitle: this.sheetTitle, range: `A${rowNum}:${this.lastCol}${rowNum}`, values: [this.toValues(merged)] });
     }
     await client().batchSetValues(this.spreadsheetId, data);
-    this.rows = this.rows.map((r) => byId.get(r.id) || r);
+    // Mutate in place so views holding references to rows stay current.
+    for (const r of this.rows) { const m = byId.get(r.id); if (m && m !== r) Object.assign(r, m); }
   }
 
   async delete(ids) {
@@ -117,13 +118,14 @@ export class Table {
     const requests = rowNums.map((n) => ({ deleteDimension: { range: { sheetId: this.sheetId, dimension: 'ROWS', startIndex: n - 1, endIndex: n } } }));
     await client().sheetsBatchUpdate(this.spreadsheetId, requests);
     const gone = new Set(ids);
-    this.rows = this.rows.filter((r) => !gone.has(r.id));
+    const kept = this.rows.filter((r) => !gone.has(r.id));
+    this.rows.splice(0, this.rows.length, ...kept);
   }
 
   async replaceAll(records) {
     await client().clearValues(this.spreadsheetId, this.sheetTitle, `A2:${this.lastCol}`);
     if (records.length) await client().setValues(this.spreadsheetId, this.sheetTitle, `A2:${this.lastCol}${records.length + 1}`, records.map((r) => this.toValues(r)));
-    this.rows = records.map((r, i) => ({ ...r, _row: i + 2 }));
+    this.rows.splice(0, this.rows.length, ...records.map((r, i) => ({ ...r, _row: i + 2 })));
   }
 
   async resolveSheetId() {

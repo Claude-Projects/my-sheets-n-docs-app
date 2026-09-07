@@ -4,6 +4,7 @@ import { openModal, field, select, toast, toastError, confirmDialog } from './co
 import { STATUSES } from '../services/schedule.js';
 import { getRegistry } from '../services/workspace.js';
 import { attachmentsPanel } from './attachments-panel.js';
+import { attachmentsFolderFor } from '../services/plans.js';
 
 /**
  * Edit (or create) one installment row.
@@ -32,8 +33,7 @@ export function openRowEditor({ row, workbook, plan, onSave, onDelete, onAttachm
 
   const attach = isNew ? h('p', { class: 'help' }, 'Save the row first, then attach screenshots.') : attachmentsPanel({
     value: row.attachments,
-    folderKey: `att:${workbook.id}`,
-    folderName: workbook.name,
+    getFolder: () => attachmentsFolderFor(workbook),
     meta: { ld_plan: plan.title, ld_row: row.id },
     onChange: (v) => onAttachmentsChange(v),
   });

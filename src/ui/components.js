@@ -80,9 +80,9 @@ export function dropdown(trigger, items) {
   trigger.addEventListener('click', (e) => {
     e.stopPropagation();
     if (menu) return closeMenu();
-    menu = h('div', { class: 'dropdown-menu' }, items.filter(Boolean).map((it) => it === 'sep'
+    menu = h('div', { class: 'dropdown-menu', onClick: (ev) => ev.stopPropagation() }, items.filter(Boolean).map((it) => it === 'sep'
       ? h('hr')
-      : h('button', { class: it.danger ? 'danger' : '', onClick: () => { closeMenu(); it.onClick(); } }, it.icon ? icon(it.icon) : null, it.label)));
+      : h('button', { class: it.danger ? 'danger' : '', onClick: (ev) => { ev.stopPropagation(); closeMenu(); it.onClick(); } }, it.icon ? icon(it.icon) : null, it.label)));
     wrap.appendChild(menu);
     setTimeout(() => document.addEventListener('click', onDoc), 0);
   });

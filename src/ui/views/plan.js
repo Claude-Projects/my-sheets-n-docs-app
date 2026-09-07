@@ -238,7 +238,7 @@ export async function render(root, { params, query, setTitle, navigate }) {
         row: r, workbook: wb.file, plan,
         onSave: async (patch) => { await updateRows(table, [{ id: r.id, patch }]); if (patch.due_date !== r.due_date) await resequence(table); renderPlan(); },
         onDelete: async () => { await deleteRows(table, [r.id]); toast('Row deleted', 'success'); renderPlan(); },
-        onAttachmentsChange: async (v) => { await updateRows(table, [{ id: r.id, patch: { attachments: v } }]); drawTable(); },
+        onAttachmentsChange: async (v) => { await updateRows(table, [{ id: r.id, patch: { attachments: v } }]); renderPlan(); },
       });
     }
 

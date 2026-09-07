@@ -17,6 +17,7 @@ export const PROPS = {
   role: 'ld_role',
   archived: 'ld_archived',
   owner: 'ld_owner',
+  attFolder: 'ld_att_folder',
 };
 
 export const KIND = {

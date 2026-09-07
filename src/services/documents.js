@@ -61,7 +61,6 @@ export async function createDocFromBlocks(title, blocks) {
       if (b.header !== false) {
         second.push({
           updateTableCellStyle: {
-            tableStartLocation: { index: tableStart },
             tableRange: { tableCellLocation: { tableStartLocation: { index: tableStart }, rowIndex: 0, columnIndex: 0 }, rowSpan: 1, columnSpan: b.rows[0].length },
             tableCellStyle: { backgroundColor: { color: { rgbColor: { red: 0.93, green: 0.95, blue: 0.98 } } } },
             fields: 'backgroundColor',
@@ -101,7 +100,6 @@ export async function createDeck(title, slides) {
   const file = await c.createFile({ name: title, mimeType: MIME.presentation, parentId: folderId('documents'), appProperties: tag(KIND.presentation) });
   const pres = await c.getPresentation(file.id);
   const reqs = [];
-  for (const s of pres.slides || []) reqs.push({ deleteObject: { objectId: s.objectId } });
 
   for (const s of slides) {
     const pageId = `ld_${uid(8)}`;
@@ -133,6 +131,8 @@ export async function createDeck(title, slides) {
       }));
     }
   }
+  // Remove the default blank slide only after the new ones exist.
+  for (const s of pres.slides || []) reqs.push({ deleteObject: { objectId: s.objectId } });
   await c.slidesBatchUpdate(file.id, reqs);
   return file;
 }

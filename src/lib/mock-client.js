@@ -113,8 +113,7 @@ export class MockClient {
   async downloadFile(id) {
     const f = this.db.files[id];
     if (!f?.content) throw new Error('No content');
-    const res = await fetch(f.content);
-    return res.blob();
+    return dataUrlToBlob(f.content);
   }
 
   async downloadJson(id) {
@@ -282,6 +281,15 @@ export class MockClient {
   async docsBatchUpdate(id, requests) { (this.db.docs[id] ||= { requests: [] }).requests.push(...requests); this.save(); return null; }
   async getPresentation(id) { return { presentationId: id, slides: [{ objectId: 'p' }] }; }
   async slidesBatchUpdate(id, requests) { (this.db.slides[id] ||= { requests: [] }).requests.push(...requests); this.save(); return null; }
+}
+
+function dataUrlToBlob(dataUrl) {
+  const [head, data] = dataUrl.split(',');
+  const mime = /^data:([^;]+)/.exec(head)?.[1] || 'application/octet-stream';
+  const bin = atob(data);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
 }
 
 function blobToDataUrl(blob) {

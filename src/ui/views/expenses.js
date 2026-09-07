@@ -1,7 +1,7 @@
 import { h, replace, icon, debounce, downloadBlob } from '../../lib/dom.js';
 import { fmtMoney, fmtDate, fmtMonth, parseAmount, todayISO, pct, safeFileName } from '../../lib/format.js';
 import { ensureLedger, listYears, loadYear, addExpense, updateExpense, deleteExpenses, groupExpenses, totalsByCategory } from '../../services/expenses.js';
-import { getRegistry, updateRegistry } from '../../services/workspace.js';
+import { getRegistry, updateRegistry, ensureSubfolder } from '../../services/workspace.js';
 import { createDocFromBlocks, expenseReportBlocks, exportFile } from '../../services/documents.js';
 import { fileLink } from '../../lib/google-client.js';
 import { isDemo } from '../../services/client.js';
@@ -121,7 +121,7 @@ export async function render(root, { setTitle, query }) {
     const tags = h('input', { type: 'text', value: r.tags || '', placeholder: 'comma, separated' });
     const notes = h('textarea', { rows: 2 }, r.notes || '');
     let attachments = r.attachments || '';
-    const attach = isNew ? h('p', { class: 'help' }, 'Save first, then attach receipts.') : attachmentsPanel({ value: attachments, folderKey: 'att:expenses', folderName: 'Expenses', meta: { ld_expense: r.id }, onChange: async (v) => { attachments = v; await updateExpense(ledger.id, table, r.id, { attachments: v }); } });
+    const attach = isNew ? h('p', { class: 'help' }, 'Save first, then attach receipts.') : attachmentsPanel({ value: attachments, getFolder: () => ensureSubfolder('attachments', 'Expenses', 'att:expenses'), meta: { ld_expense: r.id }, onChange: async (v) => { attachments = v; await updateExpense(ledger.id, table, r.id, { attachments: v }); } });
 
     const save = async (keepOpen = false) => {
       if (!date.value || !amount.value.trim()) { toast('Date and amount are required', 'error'); return; }
